@@ -1,4 +1,5 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
+
 from django.conf.urls import url
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
@@ -30,8 +31,14 @@ class ImageForm(forms.Form):
     width = forms.IntegerField(min_value=1, max_value=2000)
 
 def placeholder(request, width, height):
-    # TODO: Rest of the view will go here
-    return HttpResponse('Ok')
+    form = ImageForm({'height': height, 'width': width})
+    if form.is_valid():
+        height = form.cleaned_data['height']
+        width = form.cleaned_data['width']
+        # TODO: Generate image of requested size
+        return HttpResponse('Ok')
+    else:
+        return HttpResponseBadRequest('Invalid Image Request')
 
 def index(request):
     return HttpResponse('Hello World')
