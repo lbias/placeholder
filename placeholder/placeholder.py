@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.conf.urls import url
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
+from django import forms
 
 import sys
 import os
@@ -22,6 +23,11 @@ settings.configure(
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ),
 )
+
+class ImageForm(forms.Form):
+    """Form to validate requested placeholder image."""
+    height = forms.IntegerField(min_value=1, max_value=2000)
+    width = forms.IntegerField(min_value=1, max_value=2000)
 
 def placeholder(request, width, height):
     # TODO: Rest of the view will go here
