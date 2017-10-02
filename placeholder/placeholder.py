@@ -3,12 +3,14 @@ from django.conf.urls import url
 from django.conf import settings
 from django.core.wsgi import get_wsgi_application
 from django.core.cache import cache
+from django.views.decorators.http import etag
 from django import forms
 from io import BytesIO
 from PIL import Image, ImageDraw
 
 import sys
 import os
+import hashlib
 
 DEBUG = os.environ.get('DEBUG', 'on') == 'on'
 SECRET_KEY = os.environ.get('SECRET_KEY', 'f#&o4)9ibe=k1ofu696+4rt8#5e73fsf9leuj5@-&$nf4%(#jn')
@@ -53,6 +55,11 @@ class ImageForm(forms.Form):
             cache.set(key, content, 60 * 60)
         return content
 
+def generate_etag(request, width, height):
+    content = 'Placeholder: {0} x {1}'.format(width, height)
+    return hashlib.sha1(content.encode('utf-8')).hexdigest()
+
+@etag(generate_etag)
 def placeholder(request, width, height):
     form = ImageForm({'height': height, 'width': width})
     if form.is_valid():
